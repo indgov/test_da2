@@ -31,14 +31,12 @@ jobs:
         tags: vindog/da-test:latest
 
     - name: Deploy to DigitalOcean
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.DIGITALOCEAN_HOST }}
-        username: ${{ secrets.DIGITALOCEAN_USERNAME }}
-        key: ${{ secrets.DIGITALOCEAN_SSH_KEY }}
-        script: |
-          docker stop my-fastapi-app || true
-          docker rm my-fastapi-app || true
-          docker pull vindog/da-test:latest
-          docker run -d --name my-fastapi-app -p 80:80 vindog/da-test:latest
-                  
+        uses: samuelmeuli/action-digitalocean@v1
+        with:
+          api-token: ${{ secrets.DIGITALOCEAN_API_TOKEN }}
+          container-name: my-container
+          image: docker.io/username/my-fastapi-app:latest
+          project: my-digitalocean-project
+          region: nyc3
+          size: s-1vcpu-1gb
+          tag-name: production
