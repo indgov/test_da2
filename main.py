@@ -1,45 +1,30 @@
+# app/main.py
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import Optional
 
 app = FastAPI()
 
-class TaxInput(BaseModel):
+class TaxRequest(BaseModel):
     income: float
-    filing_status: Optional[str] = "single"
 
-# Simplified California tax brackets for demonstration
-# This is not accurate for real tax calculation
-TAX_RATES = {
-    'single': [
-        (0, 8809, 0.01),
-        (8810, 20883, 0.02),
-        # Add more brackets as needed
-    ],
-    'married': [
-        # Brackets for married filing jointly
-    ]
-}
+class TaxResponse(BaseModel):
+    income: float
+    state_tax: float
+    total_tax: float
 
-def calculate_tax(income: float, status: str):
-    brackets = TAX_RATES.get(status.lower(), TAX_RATES['single'])
-    tax = 0
-    remaining_income = income
-    
-    for lower, upper, rate in brackets:
-        if income <= lower:
-            continue
-        taxable = min(remaining_income, upper - lower + 1) if upper else remaining_income
-        tax += taxable * rate
-        remaining_income -= taxable
-        if remaining_income <= 0:
-            break
-    
-    return round(tax, 2)
+CALIFORNIA_STATE_TAX_RATE = 0.10  # Simplified tax rate for example purposes
 
-@app.post("/calculate_tax/")
-async def tax_calculation(item: TaxInput):
-    if item.income < 0:
+def calculate_california_taxes(income: float) -> float:
+    return income * CALIFORNIA_STATE_TAX_RATE
+
+@app.post("/calculate_taxes/", response_model=TaxResponse)
+def calculate_taxes(request: TaxRequest):
+    if request.income < 0:
         raise HTTPException(status_code=400, detail="Income cannot be negative")
-    tax = calculate_tax(item.income, item.filing_status)
-    return {"tax": tax, "income": item.income}
+    
+    state_tax = calculate_california_taxes(request.income)
+    return TaxResponse(
+        income=request.income,
+        state_tax=state_tax,
+        total_tax=request.income - state_tax
+    )
