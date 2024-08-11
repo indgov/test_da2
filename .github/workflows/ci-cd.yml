@@ -31,12 +31,12 @@ jobs:
         tags: vindog/da-test:latest
 
     - name: Deploy to DigitalOcean
-        uses: samuelmeuli/action-digitalocean@v1
-        with:
-          api-token: ${{ secrets.DIGITALOCEAN_API_TOKEN }}
-          container-name: my-container
-          image: docker.io/username/my-fastapi-app:latest
-          project: my-digitalocean-project
-          region: nyc3
-          size: s-1vcpu-1gb
-          tag-name: production
+      uses: samuelmeuli/action-digitalocean@v1
+      with:
+        api-token: ${{ secrets.DIGITALOCEAN_API_TOKEN }}
+        container-name: my-container
+        image: docker.io/username/my-fastapi-app:latest
+        project: my-digitalocean-project
+        region: nyc3
+        size: s-1vcpu-1gb
+        tag-name: production
